@@ -1,0 +1,6 @@
+{
+  "name": "Framework de Adoção de IA",
+  "description": "Validador interativo e estruturado da adoção sustentável de IA em engenharia de software com base no guia do Tech Leads Club.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
