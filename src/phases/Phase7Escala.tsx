@@ -7,6 +7,7 @@ import {
   FileDown,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { rolloutWavesCount, rolloutWavesLabel } from "../lib/scoring";
 
 export function Phase7Escala() {
   const {
@@ -47,11 +48,7 @@ export function Phase7Escala() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                   <h4 className="text-indigo-900 text-lg font-bold">
-                    {companyMetadata.teamSize <= 9 && "1 Onda (Duração sugerida: 4-6 semanas)"}
-                    {companyMetadata.teamSize > 9 && companyMetadata.teamSize <= 29 && "2 Ondas sequenciais (6-8 semanas cada)"}
-                    {companyMetadata.teamSize > 29 && companyMetadata.teamSize <= 99 && "3 Ondas sequenciais (8 semanas cada)"}
-                    {companyMetadata.teamSize > 99 && companyMetadata.teamSize <= 299 && "4 Ondas sequenciais (6-10 semanas cada)"}
-                    {companyMetadata.teamSize > 299 && "5 Ondas sequenciais (8-12 semanas cada)"}
+                    {rolloutWavesLabel(companyMetadata.teamSize)}
                   </h4>
                   <p className="text-xs text-slate-600 leading-relaxed mt-2 max-w-2xl font-medium">
                     {companyMetadata.teamSize <= 9 && "Estratégia: Adoção simultânea em toda a equipe pequena. A fase de piloto e escala acontecem conjuntamente devido à facilidade de controle comunicacional direta."}
@@ -64,7 +61,7 @@ export function Phase7Escala() {
                 <div className="bg-white border rounded-lg p-4 shrink-0 text-center min-w-32 shadow-xs ring-1 ring-slate-150">
                   <span className="text-slate-500 text-xxs block">N° de Ondas total</span>
                   <span className="text-3xl font-black text-indigo-900 mt-1 block">
-                    {companyMetadata.teamSize <= 9 ? "1 Onda" : companyMetadata.teamSize <= 29 ? "2 Ondas" : companyMetadata.teamSize <= 99 ? "3 Ondas" : companyMetadata.teamSize <= 299 ? "4 Ondas" : "5 Ondas"}
+                    {rolloutWavesCount(companyMetadata.teamSize)}
                   </span>
                 </div>
               </div>

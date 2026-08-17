@@ -4,7 +4,7 @@ Aplicativo interativo baseado no **Framework de Adoção de Inteligência Artifi
 
 Apoia CTOs, VPs de Engenharia, Tech Leads e Agile Coaches a diagnosticar, planejar, governar e escalar o uso produtivo e seguro de assistentes de codificação, agentes de IA e ferramentas auto-adaptativas.
 
-> **MVP v0.5** — projeto aberto à comunidade. Feedback e PRs são bem-vindos.
+> **MVP v0.6** — projeto aberto à comunidade. Feedback e PRs são bem-vindos.
 
 ---
 
@@ -88,9 +88,12 @@ Abra [http://localhost:3000](http://localhost:3000).
 | Script | Descrição |
 |--------|-----------|
 | `npm run lint` | Typecheck (`tsc --noEmit`) |
+| `npm test` | Testes unitários das fórmulas (Vitest) |
 | `npm run clean` | Remove artefatos de build |
 
-CI (GitHub Actions) roda `lint` + `build` em push/PR para `main`.
+CI (GitHub Actions) roda `lint` + `test` + `build` em push/PR para `main`.
+
+Healthcheck: `GET /api/health`
 
 ---
 
@@ -124,7 +127,7 @@ CI (GitHub Actions) roda `lint` + `build` em push/PR para `main`.
 - **Estado no browser:** progresso fica em `localStorage`. Use **Exportar / Importar** (JSON) no header para backup ou troca de máquina.
 - **Fase 7 depende do Gemini:** sem `GEMINI_API_KEY`, as demais fases funcionam; só a geração do parecer falha. Com parecer gerado, use **Markdown** ou **PDF** (impressão do navegador).
 - **Sem autenticação / multi-usuário / banco:** um dispositivo = uma sessão local (salvo via export JSON).
-- **CI:** typecheck + build no GitHub Actions; ainda sem testes automatizados de UI.
+- **CI:** typecheck, testes das fórmulas core e build no GitHub Actions.
 
 ---
 

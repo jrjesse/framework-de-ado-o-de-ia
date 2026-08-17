@@ -26,6 +26,12 @@ import {
   parseFrameworkExport,
   type FrameworkExport,
 } from "../lib/storage";
+import {
+  archetypeFromTeamSize,
+  averageDiagnosticScore,
+  getScoreClassification,
+  pilotReadinessScore,
+} from "../lib/scoring";
 
 const LOADER_MESSAGES = [
   "Analisando métricas de autonomia e maturidade de engenharia...",
@@ -35,12 +41,6 @@ const LOADER_MESSAGES = [
   "Integrando políticas de segurança ao pipeline de CI/CD...",
   "Finalizando o parecer técnico personalizado da comunidade Tech Leads Club...",
 ];
-
-function getScoreClassification(score: number) {
-  if (score < 1.67) return { label: "BAIXO", color: "text-rose-600 bg-rose-50 border-rose-200" };
-  if (score < 2.34) return { label: "MÉDIO", color: "text-amber-600 bg-amber-50 border-amber-200" };
-  return { label: "ALTO", color: "text-indigo-600 bg-indigo-50 border-indigo-200" };
-}
 
 export function useFrameworkState() {
   const [activeTab, setActiveTab] = useState(1);
@@ -104,15 +104,10 @@ export function useFrameworkState() {
     return () => clearInterval(interval);
   }, [isGenerating]);
 
-  const scoreGeral = useMemo(
-    () => parseFloat((Object.values(answers).reduce((a, b) => a + b, 0) / 9).toFixed(2)),
-    [answers]
-  );
+  const scoreGeral = useMemo(() => averageDiagnosticScore(answers), [answers]);
 
   useEffect(() => {
-    let calculatedArchetype: "Lean" | "Dedicado" | "Distribuído" = "Dedicado";
-    if (companyMetadata.teamSize <= 15) calculatedArchetype = "Lean";
-    else if (companyMetadata.teamSize > 100) calculatedArchetype = "Distribuído";
+    const calculatedArchetype = archetypeFromTeamSize(companyMetadata.teamSize);
 
     setCompanyMetadata((prev) => ({
       ...prev,
@@ -200,16 +195,7 @@ export function useFrameworkState() {
           metadata: companyMetadata,
           pilot: {
             ...pilot,
-            readinessScore: parseFloat(
-              (
-                (pilot.autonomia * 2 +
-                  pilot.senioridade * 2 +
-                  pilot.feedback * 2 +
-                  pilot.seguranca * 1 +
-                  pilot.roadmap * 1) /
-                8
-              ).toFixed(2)
-            ),
+            readinessScore: pilotReadinessScore(pilot),
           },
           gargalos: [...gargalos].sort((a, b) => b.score - a.score).slice(0, 5),
           sdlcCustomizations: sdlc,

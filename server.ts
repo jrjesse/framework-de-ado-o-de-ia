@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 
 // Cliente Gemini — a chave permanece apenas no servidor
@@ -22,14 +21,23 @@ function getGeminiClient(): GoogleGenAI {
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
+  const isProd = process.env.NODE_ENV === "production";
 
   app.use(express.json({ limit: "50mb" }));
+
+  app.get("/api/health", (_req, res) => {
+    res.json({
+      ok: true,
+      service: "framework-adocao-ia-sdlc",
+      geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+    });
+  });
 
   // API do Gemini para gerar plano customizado
   app.post("/api/generate-plan", async (req, res) => {
     try {
       const { answers, metadata, pilot, gargalos, sdlcCustomizations, governance } = req.body;
-      
+
       const ai = getGeminiClient();
 
       const prompt = `
@@ -63,7 +71,7 @@ AVALIAÇÃO DO TIME PILOTO (Fase 3):
 
 AVALIAÇÃO DE GARGALOS E PRIORIDADES (Fase 4):
 Aqui estão os gargalos críticos identificados para resolução ordenada (Fórmula de Prioridade: Impacto*3 + Esforco*2 + Risco*2):
-${gargalos?.map((g: any) => `- [Trilha ${g.trilha}] ${g.nome} (Prioridade: ${g.score >= 11 ? "Crítico" : "Médio"}, Score: ${g.score})`).join("\n") || "Nenhum gargalo customizado listado."}
+${gargalos?.map((g: { trilha: string; nome: string; score: number }) => `- [Trilha ${g.trilha}] ${g.nome} (Prioridade: ${g.score >= 11 ? "Crítico" : "Médio"}, Score: ${g.score})`).join("\n") || "Nenhum gargalo customizado listado."}
 
 ESTÁGIOS DO SDLC E ADOÇÃO PROGRESSIVA (Fase 5):
 Template selecionado: ${sdlcCustomizations?.template || "Não informado"}
@@ -113,14 +121,16 @@ Forneça um tom altamente profissional, técnico, pragmático e focado em result
       });
 
       res.json({ planMarkdown: response.text });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao gerar plano:", error);
-      res.status(500).json({ error: error.message || "Erro desconhecido ao gerar o plano de adoção." });
+      const message =
+        error instanceof Error ? error.message : "Erro desconhecido ao gerar o plano de adoção.";
+      res.status(500).json({ error: message });
     }
   });
 
-  // Vite middleware setups
-  if (process.env.NODE_ENV !== "production") {
+  if (!isProd) {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -129,7 +139,7 @@ Forneça um tom altamente profissional, técnico, pragmático e focado em result
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    app.get("*", (req, res) => {
+    app.get("*", (_req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
   }

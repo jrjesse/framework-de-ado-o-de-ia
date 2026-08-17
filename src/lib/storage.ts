@@ -7,6 +7,9 @@ import type {
   GovernanceState,
 } from "../types";
 import { SUGGESTED_GARGALOS } from "../data";
+import { scoreGargalo } from "./scoring";
+
+export { scoreGargalo } from "./scoring";
 
 export const STORAGE_KEYS = {
   metadata: "fa_metadata",
@@ -70,11 +73,6 @@ export const INITIAL_GOVERNANCE: GovernanceState = {
 };
 
 export const INITIAL_PROFICIENCY = { l0: 5, l1: 12, l2: 6, l3: 2 };
-
-export function scoreGargalo(impacto: number, esforco: number, risco: number): number {
-  const esforcoInverso = esforco === 1 ? 3 : esforco === 2 ? 2 : 1;
-  return impacto * 3 + esforcoInverso * 2 + risco * 2;
-}
 
 export function initialGargalos(): Gargalo[] {
   return SUGGESTED_GARGALOS.map((g) => ({
