@@ -5,6 +5,8 @@ Aplicativo interativo baseado no **Framework de Adoção de Inteligência Artifi
 Apoia CTOs, VPs de Engenharia, Tech Leads e Agile Coaches a diagnosticar, planejar, governar e escalar o uso produtivo e seguro de assistentes de codificação, agentes de IA e ferramentas auto-adaptativas.
 
 > **MVP v0.8** — projeto aberto à comunidade. Feedback e PRs são bem-vindos.
+>
+> **Demo ao vivo:** [https://framework-adocao-ia-sdlc.fly.dev/](https://framework-adocao-ia-sdlc.fly.dev/)
 
 ---
 
@@ -104,9 +106,9 @@ fly secrets set GEMINI_API_KEY=sua_chave_do_gemini
 fly deploy
 ```
 
-URL típica: `https://framework-adocao-ia-sdlc.fly.dev`
+URL ao vivo: [https://framework-adocao-ia-sdlc.fly.dev/](https://framework-adocao-ia-sdlc.fly.dev/)
 
-Deploy contínuo: configure o secret `FLY_API_TOKEN` no GitHub (Settings → Secrets). O workflow `.github/workflows/deploy-fly.yml` publica em push para `main`.
+Deploy contínuo: configure o secret `FLY_API_TOKEN` no GitHub (Settings → Secrets). O workflow `.github/workflows/fly-deploy.yml` publica em push para `main`.
 
 #### Opção B — Render
 

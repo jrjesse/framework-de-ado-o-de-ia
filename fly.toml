@@ -1,14 +1,12 @@
-# Fly.io — https://fly.io/docs/launch/
-# 1. fly auth login
-# 2. fly launch --no-deploy   (ou: fly apps create framework-adocao-ia-sdlc)
-# 3. fly secrets set GEMINI_API_KEY=sua_chave
-# 4. fly deploy
+# fly.toml app configuration file generated for framework-adocao-ia-sdlc on 2026-08-17T11:31:56-03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
 app = 'framework-adocao-ia-sdlc'
 primary_region = 'gru'
 
 [build]
-
 [http_service]
   internal_port = 3000
   force_https = true
@@ -26,5 +24,5 @@ primary_region = 'gru'
 
 [[vm]]
   memory = '512mb'
-  cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 512
