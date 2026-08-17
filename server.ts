@@ -106,8 +106,9 @@ Use títulos claros correspondentes às fases mais críticas e inclua as seçõe
 Forneça um tom altamente profissional, técnico, pragmático e focado em resultados. Não use lero-lero motivacional, foque em conselhos acionáveis de quem já liderou isso na prática, como é tradicional no Tech Leads Club.
 `;
 
+      const model = process.env.GEMINI_MODEL || "gemini-3.5-flash";
       const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model,
         contents: prompt,
       });
 

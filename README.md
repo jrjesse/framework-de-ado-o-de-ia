@@ -109,12 +109,11 @@ npm run start
 
 ## Known limitations
 
-- **MVP / protótipo:** UX e conteúdo das 7 fases estão funcionais; packaging e estrutura de código ainda em evolução.
-- **Estado só no browser:** progresso fica em `localStorage` — limpar dados do site apaga o preenchimento.
-- **Fase 7 depende do Gemini:** sem `GEMINI_API_KEY`, as demais fases funcionam; só a geração do parecer falha.
-- **Sem autenticação / multi-usuário / banco:** um dispositivo = uma sessão local.
+- **MVP / protótipo:** UX e conteúdo das 7 fases estão funcionais; packaging ainda em evolução.
+- **Estado no browser:** progresso fica em `localStorage`. Use **Exportar / Importar** (JSON) no header para backup ou troca de máquina.
+- **Fase 7 depende do Gemini:** sem `GEMINI_API_KEY`, as demais fases funcionam; só a geração do parecer falha. Com parecer gerado, use **Baixar Markdown**.
+- **Sem autenticação / multi-usuário / banco:** um dispositivo = uma sessão local (salvo via export JSON).
 - **Sem testes automatizados / CI** neste momento.
-- **UI concentrada em um monólito** (`src/App.tsx`) — refatoração por fase está no roadmap.
 
 ---
 
