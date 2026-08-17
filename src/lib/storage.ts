@@ -8,8 +8,11 @@ import type {
 } from "../types";
 import { SUGGESTED_GARGALOS } from "../data";
 import { scoreGargalo } from "./scoring";
+import type { EnablersState } from "./enablers";
+import { INITIAL_ENABLERS } from "./enablers";
 
 export { scoreGargalo } from "./scoring";
+export { INITIAL_ENABLERS } from "./enablers";
 
 export const STORAGE_KEYS = {
   metadata: "fa_metadata",
@@ -20,9 +23,10 @@ export const STORAGE_KEYS = {
   governance: "fa_governance",
   aiPlan: "fa_ai_plan",
   proficiency: "fa_proficiency",
+  enablers: "fa_enablers",
 } as const;
 
-export const EXPORT_VERSION = 1;
+export const EXPORT_VERSION = 2;
 
 export const INITIAL_ANSWERS: DiagnosticAnswers = {
   q1: 2,
@@ -100,6 +104,7 @@ export type FrameworkExport = {
   sdlc: SdlcCustomizations;
   governance: GovernanceState;
   membersProficiency: typeof INITIAL_PROFICIENCY;
+  enablers?: EnablersState;
   aiPlan: string;
 };
 

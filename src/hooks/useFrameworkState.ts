@@ -17,6 +17,7 @@ import {
   INITIAL_SDLC,
   INITIAL_GOVERNANCE,
   INITIAL_PROFICIENCY,
+  INITIAL_ENABLERS,
   scoreGargalo,
   initialGargalos,
   readJson,
@@ -32,6 +33,7 @@ import {
   getScoreClassification,
   pilotReadinessScore,
 } from "../lib/scoring";
+import { AI_ENABLERS, simulateEnablerImpact, type EnablersState, type EnablerId } from "../lib/enablers";
 
 const LOADER_MESSAGES = [
   "Analisando métricas de autonomia e maturidade de engenharia...",
@@ -65,6 +67,9 @@ export function useFrameworkState() {
   const [membersProficiency, setMembersProficiency] = useState(() =>
     readJson(STORAGE_KEYS.proficiency, INITIAL_PROFICIENCY)
   );
+  const [enablers, setEnablers] = useState<EnablersState>(() =>
+    readJson(STORAGE_KEYS.enablers, INITIAL_ENABLERS)
+  );
   const [aiPlan, setAiPlan] = useState(() => localStorage.getItem(STORAGE_KEYS.aiPlan) || "");
   const [isGenerating, setIsGenerating] = useState(false);
   const [genError, setGenError] = useState("");
@@ -91,6 +96,9 @@ export function useFrameworkState() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.proficiency, JSON.stringify(membersProficiency));
   }, [membersProficiency]);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.enablers, JSON.stringify(enablers));
+  }, [enablers]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
@@ -150,6 +158,15 @@ export function useFrameworkState() {
   const metaAproveL2 = pctL2Plus >= 20;
   const metaAproveL3 = pctL3 >= 5;
 
+  const enablerImpact = useMemo(
+    () => simulateEnablerImpact(enablers, scoreGeral, companyMetadata.archetype),
+    [enablers, scoreGeral, companyMetadata.archetype]
+  );
+
+  const toggleEnabler = (id: EnablerId) => {
+    setEnablers((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const handleAddGargalo = () => {
     const novoGargalo: Gargalo = {
       id: "g_usr_" + Date.now(),
@@ -200,6 +217,8 @@ export function useFrameworkState() {
           gargalos: [...gargalos].sort((a, b) => b.score - a.score).slice(0, 5),
           sdlcCustomizations: sdlc,
           governance,
+          enablers,
+          enablerImpact,
         }),
       });
 
@@ -236,6 +255,7 @@ export function useFrameworkState() {
     setSdlc(INITIAL_SDLC);
     setGovernance(INITIAL_GOVERNANCE);
     setMembersProficiency(INITIAL_PROFICIENCY);
+    setEnablers(INITIAL_ENABLERS);
     setAiPlan("");
     window.location.reload();
   };
@@ -285,9 +305,10 @@ export function useFrameworkState() {
       sdlc,
       governance,
       membersProficiency,
+      enablers,
       aiPlan,
     };
-  }, [companyMetadata, answers, pilot, gargalos, sdlc, governance, membersProficiency, aiPlan]);
+  }, [companyMetadata, answers, pilot, gargalos, sdlc, governance, membersProficiency, enablers, aiPlan]);
 
   const handleExportProgress = () => {
     const slug = companyMetadata.companyName.replace(/\s+/g, "-").toLowerCase() || "empresa";
@@ -304,6 +325,7 @@ export function useFrameworkState() {
     setSdlc(data.sdlc);
     setGovernance(data.governance);
     setMembersProficiency(data.membersProficiency || INITIAL_PROFICIENCY);
+    setEnablers(data.enablers ? { ...INITIAL_ENABLERS, ...data.enablers } : INITIAL_ENABLERS);
     setAiPlan(data.aiPlan || "");
     if (data.aiPlan) localStorage.setItem(STORAGE_KEYS.aiPlan, data.aiPlan);
     else localStorage.removeItem(STORAGE_KEYS.aiPlan);
@@ -340,6 +362,10 @@ export function useFrameworkState() {
     setGovernance,
     membersProficiency,
     setMembersProficiency,
+    enablers,
+    toggleEnabler,
+    enablerImpact,
+    enablerCatalog: AI_ENABLERS,
     aiPlan,
     isGenerating,
     genError,

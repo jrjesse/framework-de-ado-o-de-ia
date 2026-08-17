@@ -1,7 +1,7 @@
 {
   "name": "framework-adocao-ia-sdlc",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "App interativo do Framework de Adoção de IA no SDLC (Tech Leads Club)",
   "type": "module",
   "scripts": {

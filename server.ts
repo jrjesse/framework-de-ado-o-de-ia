@@ -18,12 +18,36 @@ function getGeminiClient(): GoogleGenAI {
   return aiInstance;
 }
 
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX = 8;
+const rateHits = new Map<string, number[]>();
+
+function allowRequest(ip: string): boolean {
+  const now = Date.now();
+  const recent = (rateHits.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  if (recent.length >= RATE_LIMIT_MAX) {
+    rateHits.set(ip, recent);
+    return false;
+  }
+  recent.push(now);
+  rateHits.set(ip, recent);
+  return true;
+}
+
+function clientIp(req: express.Request): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string" && forwarded.length > 0) {
+    return forwarded.split(",")[0].trim();
+  }
+  return req.socket.remoteAddress || "unknown";
+}
+
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
   const isProd = process.env.NODE_ENV === "production";
 
-  app.use(express.json({ limit: "50mb" }));
+  app.use(express.json({ limit: "1mb" }));
 
   app.get("/api/health", (_req, res) => {
     res.json({
@@ -33,12 +57,33 @@ async function startServer() {
     });
   });
 
-  // API do Gemini para gerar plano customizado
   app.post("/api/generate-plan", async (req, res) => {
     try {
-      const { answers, metadata, pilot, gargalos, sdlcCustomizations, governance } = req.body;
+      const ip = clientIp(req);
+      if (!allowRequest(ip)) {
+        return res.status(429).json({
+          error: "Muitas gerações em pouco tempo. Aguarde alguns minutos e tente novamente.",
+        });
+      }
+
+      const { answers, metadata, pilot, gargalos, sdlcCustomizations, governance, enablers, enablerImpact } =
+        req.body || {};
+
+      if (!answers || typeof answers !== "object" || !metadata || typeof metadata !== "object") {
+        return res.status(400).json({
+          error: "Payload incompleto: fields `answers` e `metadata` são obrigatórios.",
+        });
+      }
 
       const ai = getGeminiClient();
+
+      const activeEnablers =
+        enablers && typeof enablers === "object"
+          ? Object.entries(enablers)
+              .filter(([, on]) => Boolean(on))
+              .map(([id]) => id)
+              .join(", ") || "Nenhum"
+          : "Não informado";
 
       const prompt = `
 Você é o consultor especialista em IA da comunidade Tech Leads Club, focado em ajudar times de engenharia a adotarem IA de forma sustentável, estruturada e pragmática à escala corporativa.
@@ -50,6 +95,11 @@ DADOS DA ORGANIZAÇÃO:
 - Arquétipo selecionado de Time Enablers: ${metadata?.archetype || "Não informado"}
 - Stack Principal: ${metadata?.techStack || "Não informado"}
 - Nível atual de adoção geral: ${metadata?.aiUsage || "Não informado"}
+
+ENABLERS ATIVOS (Fase 2):
+- Habilitadores ligados: ${activeEnablers}
+- Onboarding estimado (simulação): ${enablerImpact?.onboardingWeeks ?? "N/A"} semanas
+- Ganho de eficiência estimado: ${enablerImpact?.efficiencyGainPct ?? "N/A"}%
 
 RESPOSTAS DO DIAGNÓSTICO DE ENGENHARIA (Fase 1):
 Abaixo estão os resultados das 9 dimensões avaliadas (valores de 1.0 a 3.0), onde 1.0 é Baixo, 2.0 é Médio e 3.0 é Alto:
@@ -101,6 +151,7 @@ Use títulos claros correspondentes às fases mais críticas e inclua as seçõe
 
 2. **Cronograma Tático de 30/60/90 Dias para o Time AI Enablers**:
    - Crie ações extremamente práticas e acionáveis para cada marco (30, 60 e 90 dias) específicas para a realidade do tamanho da engenharia do cliente (${metadata?.teamSize} engenheiros, usando as premissas do arquétipo estrutural '${metadata?.archetype}').
+   - Considere os enablers ativos e a simulação de onboarding/eficiência acima.
 
 3. **Plano de Implementação no SDLC (Fase 5)**:
    - Dê recomendações sobre quais ferramentas e dinâmicas aplicar nos estágios de maior impacto do SDLC baseado no template selecionado (${sdlcCustomizations?.template}), detalhando como avançar de forma segura do estágio de menor prontidão técnica para o próximo nível.

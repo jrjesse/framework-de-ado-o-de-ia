@@ -16,6 +16,7 @@ export function Phase2Enablers() {
     sdlc, setSdlc,
     governance, setGovernance,
     membersProficiency, setMembersProficiency,
+    enablers, toggleEnabler, enablerImpact, enablerCatalog,
     aiPlan, isGenerating, genError, loadingMessage,
     scoreGeral, currentClassification, menorDimensao,
     totalDevsMatriz, pctL0, pctL1Plus, pctL2Plus, pctL3,
@@ -147,6 +148,74 @@ export function Phase2Enablers() {
                       {companyMetadata.archetype === "Distribuído" && "Implantar a plataforma interna comum (servidores MCP corporativos) e receber telemetria de 60% dos squads."}
                     </p>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SIMULAÇÃO DE IMPACTO DOS ENABLERS */}
+            <div className="border border-slate-200 rounded-xl p-6 bg-white mb-6 shadow-xs">
+              <h3 className="text-lg font-bold text-slate-950 mb-2 flex items-center gap-2">
+                <Sliders className="h-5 w-5 text-indigo-650" />
+                Simulação de impacto dos Enablers
+              </h3>
+              <p className="text-xs text-slate-500 mb-5 leading-relaxed font-medium">
+                Ligue ou desligue habilitadores técnicos e organizacionais para estimar o efeito sobre
+                onboarding (semanas) e ganho de eficiência (%). A projeção combina seu score de diagnóstico
+                ({scoreGeral}) com o arquétipo {companyMetadata.archetype}.
+              </p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-3">
+                  {enablerCatalog.map((item) => (
+                    <label
+                      key={item.id}
+                      className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-colors ${
+                        enablers[item.id]
+                          ? "border-indigo-300 bg-indigo-50/40"
+                          : "border-slate-200 bg-slate-50 hover:bg-white"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={enablers[item.id]}
+                        onChange={() => toggleEnabler(item.id)}
+                        className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span className="min-w-0">
+                        <span className="text-sm font-bold text-slate-900 block">{item.title}</span>
+                        <span className="text-xs text-slate-600 leading-relaxed block mt-0.5">{item.desc}</span>
+                        <span className="text-xxs text-indigo-700 font-semibold block mt-1.5">
+                          Onboarding {item.onboardingDelta} sem · Eficiência +{item.efficiencyDelta} pp
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
+                    <span className="text-xs font-bold text-slate-500 uppercase block">Onboarding estimado</span>
+                    <span className="text-4xl font-black text-slate-950 mt-2 block">
+                      {enablerImpact.onboardingWeeks}
+                    </span>
+                    <span className="text-xs text-slate-500">semanas</span>
+                    <p className="text-xxs text-slate-500 mt-2">
+                      Baseline sem enablers extras: {enablerImpact.baselineOnboardingWeeks} sem
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-center">
+                    <span className="text-xs font-bold text-indigo-700 uppercase block">Ganho de eficiência</span>
+                    <span className="text-4xl font-black text-indigo-950 mt-2 block">
+                      +{enablerImpact.efficiencyGainPct}%
+                    </span>
+                    <span className="text-xs text-indigo-700">projeção relativa</span>
+                    <p className="text-xxs text-indigo-600/80 mt-2">
+                      Baseline: +{enablerImpact.baselineEfficiencyPct}% · {enablerImpact.activeCount} enablers ativos
+                    </p>
+                  </div>
+                  <p className="text-xxs text-slate-400 leading-relaxed">
+                    Valores ilustrativos para alinhamento de liderança — não substituem métricas DORA reais do seu contexto.
+                  </p>
                 </div>
               </div>
             </div>

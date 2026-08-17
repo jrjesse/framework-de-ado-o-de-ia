@@ -4,7 +4,7 @@ Aplicativo interativo baseado no **Framework de Adoção de Inteligência Artifi
 
 Apoia CTOs, VPs de Engenharia, Tech Leads e Agile Coaches a diagnosticar, planejar, governar e escalar o uso produtivo e seguro de assistentes de codificação, agentes de IA e ferramentas auto-adaptativas.
 
-> **MVP v0.6** — projeto aberto à comunidade. Feedback e PRs são bem-vindos.
+> **MVP v0.7** — projeto aberto à comunidade. Feedback e PRs são bem-vindos.
 
 ---
 
@@ -13,7 +13,7 @@ Apoia CTOs, VPs de Engenharia, Tech Leads e Agile Coaches a diagnosticar, planej
 Jornada guiada em 7 fases:
 
 1. **Diagnóstico de Fluência** — 9 perguntas em três dimensões (Processos & Métricas, Cultura & Habilidades, Infraestrutura & Ferramental), com score e classificação de maturidade.
-2. **Time AI Enablers** — arquétipo automático (Lean / Dedicado / Distribuído) conforme o tamanho do time, com sizing, rituais e metas de fluência sugeridos.
+2. **Time AI Enablers** — arquétipo automático (Lean / Dedicado / Distribuído), sizing/rituais e **simulação de impacto** (onboarding em semanas + ganho de eficiência %) ao ligar/desligar habilitadores.
 3. **Time piloto & ferramentas** — score ponderado do squad candidato e mapeamento de ferramentas homologadas (ex.: Copilot, Cursor, CodeRabbit).
 4. **Priorização de gargalos** — planilha com fórmula `Score = Impacto × 3 + (3 − Esforço) × 2 + Risco × 2` e trilhas +30 / +90 / +180 dias.
 5. **Playbook do SDLC** — templates Conservador / Balanceado / Agressivo e níveis de engajamento da IA por estágio.
