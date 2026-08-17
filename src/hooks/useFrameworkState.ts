@@ -34,6 +34,7 @@ import {
   pilotReadinessScore,
 } from "../lib/scoring";
 import { AI_ENABLERS, simulateEnablerImpact, type EnablersState, type EnablerId } from "../lib/enablers";
+import { track } from "../lib/telemetry";
 
 const LOADER_MESSAGES = [
   "Analisando métricas de autonomia e maturidade de engenharia...",
@@ -45,7 +46,7 @@ const LOADER_MESSAGES = [
 ];
 
 export function useFrameworkState() {
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTabState] = useState(1);
   const [companyMetadata, setCompanyMetadata] = useState<CompanyMetadata>(() =>
     readJson(STORAGE_KEYS.metadata, INITIAL_METADATA)
   );
@@ -74,6 +75,16 @@ export function useFrameworkState() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [genError, setGenError] = useState("");
   const [loadingMessage, setLoadingMessage] = useState("Avaliando o seu diagnóstico de IA...");
+
+  useEffect(() => {
+    track("session_start");
+    track("phase_view", { phase: 1 });
+  }, []);
+
+  const setActiveTab = useCallback((tab: number) => {
+    setActiveTabState(tab);
+    track("phase_view", { phase: tab });
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.metadata, JSON.stringify(companyMetadata));
@@ -165,6 +176,7 @@ export function useFrameworkState() {
 
   const toggleEnabler = (id: EnablerId) => {
     setEnablers((prev) => ({ ...prev, [id]: !prev[id] }));
+    track("enabler_toggle");
   };
 
   const handleAddGargalo = () => {
@@ -203,6 +215,7 @@ export function useFrameworkState() {
   const handleGenerateAiPlan = async () => {
     setIsGenerating(true);
     setGenError("");
+    track("generate_plan_start");
     try {
       const response = await fetch("/api/generate-plan", {
         method: "POST",
@@ -230,11 +243,13 @@ export function useFrameworkState() {
       if (data.planMarkdown) {
         setAiPlan(data.planMarkdown);
         localStorage.setItem(STORAGE_KEYS.aiPlan, data.planMarkdown);
+        track("generate_plan_success");
         setActiveTab(7);
       } else {
         throw new Error(data.error || "Formato de resposta inválido do servidor.");
       }
     } catch (err: unknown) {
+      track("generate_plan_error");
       const message =
         err instanceof Error
           ? err.message
@@ -313,6 +328,7 @@ export function useFrameworkState() {
   const handleExportProgress = () => {
     const slug = companyMetadata.companyName.replace(/\s+/g, "-").toLowerCase() || "empresa";
     downloadJson(`framework-adocao-ia-${slug}.json`, buildExportPayload());
+    track("export_json");
   };
 
   const handleImportProgress = async (file: File) => {
@@ -329,12 +345,14 @@ export function useFrameworkState() {
     setAiPlan(data.aiPlan || "");
     if (data.aiPlan) localStorage.setItem(STORAGE_KEYS.aiPlan, data.aiPlan);
     else localStorage.removeItem(STORAGE_KEYS.aiPlan);
+    track("import_json");
   };
 
   const handleDownloadAiPlan = () => {
     if (!aiPlan) return;
     const slug = companyMetadata.companyName.replace(/\s+/g, "-").toLowerCase() || "empresa";
     downloadTextFile(`parecer-adocao-ia-${slug}.md`, aiPlan, "text/markdown;charset=utf-8");
+    track("download_markdown");
   };
 
   const handleDownloadAiPlanPdf = () => {
@@ -343,6 +361,7 @@ export function useFrameworkState() {
       `Parecer Técnico — ${companyMetadata.companyName || "Organização"}`,
       aiPlan
     );
+    track("download_pdf");
   };
 
   return {

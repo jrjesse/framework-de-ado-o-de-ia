@@ -136,6 +136,24 @@ CI (GitHub Actions) roda `lint` + `test` + `build` em push/PR para `main`.
 
 Healthcheck: `GET /api/health`
 
+### Telemetria de uso (anônima)
+
+O app registra eventos **sem PII** (sem nome da empresa, respostas ou texto do parecer):
+
+- `session_start`, `phase_view` (fase 1–7)
+- `export_json`, `import_json`
+- `download_markdown`, `download_pdf`
+- `generate_plan_start|success|error`
+- `enabler_toggle`
+
+Consulta rápida (contadores em memória; resetam no redeploy):
+
+```bash
+curl https://framework-adocao-ia-sdlc.fly.dev/api/stats
+```
+
+Logs estruturados JSON também vão para o stdout do Fly (`fly logs`).
+
 ---
 
 ## Como aplicar o framework
@@ -169,6 +187,7 @@ Healthcheck: `GET /api/health`
 - **Fase 7 depende do Gemini:** sem `GEMINI_API_KEY`, as demais fases funcionam; só a geração do parecer falha. Com parecer gerado, use **Markdown** ou **PDF** (impressão do navegador).
 - **Sem autenticação / multi-usuário / banco:** um dispositivo = uma sessão local (salvo via export JSON).
 - **CI:** typecheck, testes das fórmulas core e build no GitHub Actions.
+- **Telemetria:** eventos agregados anônimos; contadores em memória resetam a cada deploy.
 
 ---
 

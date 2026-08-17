@@ -2,6 +2,11 @@ import "dotenv/config";
 import express from "express";
 import path from "path";
 import { GoogleGenAI } from "@google/genai";
+import {
+  getTelemetryStats,
+  parseAndRecordTelemetry,
+  recordServerEvent,
+} from "./telemetryStore";
 
 // Cliente Gemini — a chave permanece apenas no servidor
 let aiInstance: GoogleGenAI | null = null;
@@ -20,18 +25,34 @@ function getGeminiClient(): GoogleGenAI {
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_MAX = 8;
+const TELEMETRY_WINDOW_MS = 60 * 1000;
+const TELEMETRY_MAX = 120;
 const rateHits = new Map<string, number[]>();
+const telemetryHits = new Map<string, number[]>();
 
-function allowRequest(ip: string): boolean {
+function allowWithinWindow(
+  bucket: Map<string, number[]>,
+  key: string,
+  limit: number,
+  windowMs: number
+): boolean {
   const now = Date.now();
-  const recent = (rateHits.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  if (recent.length >= RATE_LIMIT_MAX) {
-    rateHits.set(ip, recent);
+  const recent = (bucket.get(key) || []).filter((t) => now - t < windowMs);
+  if (recent.length >= limit) {
+    bucket.set(key, recent);
     return false;
   }
   recent.push(now);
-  rateHits.set(ip, recent);
+  bucket.set(key, recent);
   return true;
+}
+
+function allowRequest(ip: string): boolean {
+  return allowWithinWindow(rateHits, ip, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS);
+}
+
+function allowTelemetry(ip: string): boolean {
+  return allowWithinWindow(telemetryHits, ip, TELEMETRY_MAX, TELEMETRY_WINDOW_MS);
 }
 
 function clientIp(req: express.Request): string {
@@ -57,10 +78,28 @@ async function startServer() {
     });
   });
 
+  app.post("/api/telemetry", (req, res) => {
+    const ip = clientIp(req);
+    if (!allowTelemetry(ip)) {
+      return res.status(429).json({ error: "Rate limit de telemetria excedido." });
+    }
+
+    const result = parseAndRecordTelemetry(req.body);
+    if (result.ok === false) {
+      return res.status(400).json({ error: result.error });
+    }
+    return res.status(204).end();
+  });
+
+  app.get("/api/stats", (_req, res) => {
+    res.json(getTelemetryStats());
+  });
+
   app.post("/api/generate-plan", async (req, res) => {
     try {
       const ip = clientIp(req);
       if (!allowRequest(ip)) {
+        recordServerEvent("generate_plan_error");
         return res.status(429).json({
           error: "Muitas gerações em pouco tempo. Aguarde alguns minutos e tente novamente.",
         });
@@ -70,11 +109,13 @@ async function startServer() {
         req.body || {};
 
       if (!answers || typeof answers !== "object" || !metadata || typeof metadata !== "object") {
+        recordServerEvent("generate_plan_error");
         return res.status(400).json({
           error: "Payload incompleto: fields `answers` e `metadata` são obrigatórios.",
         });
       }
 
+      recordServerEvent("generate_plan_start");
       const ai = getGeminiClient();
 
       const activeEnablers =
@@ -171,9 +212,11 @@ Forneça um tom altamente profissional, técnico, pragmático e focado em result
         contents: prompt,
       });
 
+      recordServerEvent("generate_plan_success");
       res.json({ planMarkdown: response.text });
     } catch (error: unknown) {
       console.error("Erro ao gerar plano:", error);
+      recordServerEvent("generate_plan_error");
       const message =
         error instanceof Error ? error.message : "Erro desconhecido ao gerar o plano de adoção.";
       res.status(500).json({ error: message });
