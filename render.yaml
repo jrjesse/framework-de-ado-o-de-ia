@@ -1,0 +1,20 @@
+# Render Blueprint — https://render.com/docs/infrastructure-as-code
+# Conecte o repo em https://dashboard.render.com e use este arquivo,
+# ou: New > Blueprint > selecione o repositório.
+#
+# Defina GEMINI_API_KEY nos Environment Variables do serviço.
+
+services:
+  - type: web
+    name: framework-adocao-ia-sdlc
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: GEMINI_API_KEY
+        sync: false

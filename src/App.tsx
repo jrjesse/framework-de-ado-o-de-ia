@@ -58,7 +58,7 @@ export default function App() {
                 <span className="text-slate-900 font-bold tracking-tight text-sm">
                   TECH LEADS <span className="font-normal opacity-70">CLUB</span>
                 </span>
-                <span className="text-xs text-slate-500">• Guia de Referência Completo v0.7</span>
+                <span className="text-xs text-slate-500">• Guia de Referência Completo v0.8</span>
               </div>
               <h1 className="text-2xl font-bold text-slate-950 tracking-tight mt-1 flex items-center gap-2">
                 Framework de Adoção de IA

@@ -4,7 +4,7 @@ Aplicativo interativo baseado no **Framework de Adoção de Inteligência Artifi
 
 Apoia CTOs, VPs de Engenharia, Tech Leads e Agile Coaches a diagnosticar, planejar, governar e escalar o uso produtivo e seguro de assistentes de codificação, agentes de IA e ferramentas auto-adaptativas.
 
-> **MVP v0.7** — projeto aberto à comunidade. Feedback e PRs são bem-vindos.
+> **MVP v0.8** — projeto aberto à comunidade. Feedback e PRs são bem-vindos.
 
 ---
 
@@ -81,7 +81,46 @@ docker build -t framework-adocao-ia .
 docker run --rm -p 3000:3000 -e GEMINI_API_KEY=sua_chave framework-adocao-ia
 ```
 
+Ou com Compose:
+
+```bash
+export GEMINI_API_KEY=sua_chave
+docker compose up --build
+```
+
 Abra [http://localhost:3000](http://localhost:3000).
+
+### Deploy (produção pública)
+
+O app já tem `Dockerfile`, healthcheck (`/api/health`) e configs para **Fly.io** e **Render**.
+
+#### Opção A — Fly.io (recomendado)
+
+```bash
+# Instale o CLI: https://fly.io/docs/hands-on/install-flyctl/
+fly auth login
+fly launch --no-deploy   # confirma o app em fly.toml (região gru)
+fly secrets set GEMINI_API_KEY=sua_chave_do_gemini
+fly deploy
+```
+
+URL típica: `https://framework-adocao-ia-sdlc.fly.dev`
+
+Deploy contínuo: configure o secret `FLY_API_TOKEN` no GitHub (Settings → Secrets). O workflow `.github/workflows/deploy-fly.yml` publica em push para `main`.
+
+#### Opção B — Render
+
+1. [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**
+2. Selecione este repositório (`render.yaml`)
+3. Preencha `GEMINI_API_KEY` quando solicitado
+4. Deploy
+
+#### Checklist pós-deploy
+
+- [ ] `GET /api/health` retorna `{ "ok": true, "geminiConfigured": true }`
+- [ ] Percorrer Fases 1–6 sem chave (ok)
+- [ ] Fase 7 gerar parecer com a chave configurada
+- [ ] Compartilhar o link na issue [#1](https://github.com/jrjesse/framework-de-ado-o-de-ia/issues/1) e no TLC
 
 ### Outros scripts
 
