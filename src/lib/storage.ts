@@ -119,6 +119,62 @@ export function downloadJson(filename: string, data: unknown) {
   downloadTextFile(filename, JSON.stringify(data, null, 2), "application/json;charset=utf-8");
 }
 
+/** Abre janela de impressão para o usuário salvar como PDF (sem dependência extra). */
+export function printMarkdownAsPdf(title: string, markdown: string) {
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  const htmlBody = markdown
+    .split("\n")
+    .map((line) => {
+      if (line.startsWith("### ")) return `<h3>${escapeHtml(line.slice(4))}</h3>`;
+      if (line.startsWith("## ")) return `<h2>${escapeHtml(line.slice(3))}</h2>`;
+      if (line.startsWith("# ")) return `<h1>${escapeHtml(line.slice(2))}</h1>`;
+      if (line.startsWith("- ")) return `<li>${escapeHtml(line.slice(2))}</li>`;
+      if (line.trim() === "") return "<br/>";
+      return `<p>${escapeHtml(line)}</p>`;
+    })
+    .join("\n");
+
+  const win = window.open("", "_blank", "noopener,noreferrer,width=900,height=700");
+  if (!win) {
+    throw new Error("O navegador bloqueou a janela de impressão. Permita pop-ups para baixar o PDF.");
+  }
+
+  win.document.write(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    body { font-family: Georgia, "Times New Roman", serif; color: #111; max-width: 720px; margin: 2rem auto; line-height: 1.55; padding: 0 1rem; }
+    h1 { font-size: 1.6rem; margin-top: 0; }
+    h2 { font-size: 1.25rem; margin-top: 1.5rem; border-bottom: 1px solid #ddd; padding-bottom: 0.25rem; }
+    h3 { font-size: 1.05rem; margin-top: 1.25rem; }
+    p, li { font-size: 0.95rem; }
+    li { margin-left: 1.25rem; }
+    .meta { color: #555; font-size: 0.8rem; margin-bottom: 1.5rem; }
+    @media print { body { margin: 0; max-width: none; } }
+  </style>
+</head>
+<body>
+  <p class="meta">Framework de Adoção de IA · Tech Leads Club</p>
+  <h1>${escapeHtml(title)}</h1>
+  ${htmlBody}
+  <script>
+    window.onload = function () {
+      setTimeout(function () { window.print(); }, 250);
+    };
+  </script>
+</body>
+</html>`);
+  win.document.close();
+}
+
 export function parseFrameworkExport(raw: string): FrameworkExport {
   const data = JSON.parse(raw) as FrameworkExport;
   if (!data || typeof data !== "object") {

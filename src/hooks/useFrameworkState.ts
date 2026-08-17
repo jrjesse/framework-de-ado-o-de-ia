@@ -22,6 +22,7 @@ import {
   readJson,
   downloadJson,
   downloadTextFile,
+  printMarkdownAsPdf,
   parseFrameworkExport,
   type FrameworkExport,
 } from "../lib/storage";
@@ -328,6 +329,14 @@ export function useFrameworkState() {
     downloadTextFile(`parecer-adocao-ia-${slug}.md`, aiPlan, "text/markdown;charset=utf-8");
   };
 
+  const handleDownloadAiPlanPdf = () => {
+    if (!aiPlan) return;
+    printMarkdownAsPdf(
+      `Parecer Técnico — ${companyMetadata.companyName || "Organização"}`,
+      aiPlan
+    );
+  };
+
   return {
     activeTab,
     setActiveTab,
@@ -370,6 +379,7 @@ export function useFrameworkState() {
     handleExportProgress,
     handleImportProgress,
     handleDownloadAiPlan,
+    handleDownloadAiPlanPdf,
   };
 }
 

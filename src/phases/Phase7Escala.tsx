@@ -24,7 +24,7 @@ export function Phase7Escala() {
     metaAproveL0, metaAproveL1, metaAproveL2, metaAproveL3,
     handleAddGargalo, handleUpdateGargalo, handleRemoveGargalo,
     handleGenerateAiPlan, handleClearData, applySdlcTemplate,
-    handleExportProgress, handleImportProgress, handleDownloadAiPlan,
+    handleExportProgress, handleImportProgress, handleDownloadAiPlan, handleDownloadAiPlanPdf,
   } = useFramework();
 
   return (
@@ -148,16 +148,32 @@ export function Phase7Escala() {
                   </h3>
                   <p className="text-xxs text-slate-400 mt-1">Este relatório estratégico consolida todos os dados de engenharia, prioriza seus gargalos e calcula prazos reais.</p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                   {aiPlan && (
-                    <button
-                      type="button"
-                      onClick={handleDownloadAiPlan}
-                      className="px-5 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all shadow-md inline-flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <FileDown className="h-3.5 w-3.5" />
-                      Baixar Markdown
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleDownloadAiPlan}
+                        className="px-5 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all shadow-md inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <FileDown className="h-3.5 w-3.5" />
+                        Markdown
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          try {
+                            handleDownloadAiPlanPdf();
+                          } catch (err) {
+                            alert(err instanceof Error ? err.message : "Falha ao abrir impressão PDF.");
+                          }
+                        }}
+                        className="px-5 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all shadow-md inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <FileDown className="h-3.5 w-3.5" />
+                        PDF
+                      </button>
+                    </>
                   )}
                   <button
                     type="button"

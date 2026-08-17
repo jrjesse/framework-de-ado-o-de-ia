@@ -74,12 +74,23 @@ npm run build
 npm run start
 ```
 
+### Docker
+
+```bash
+docker build -t framework-adocao-ia .
+docker run --rm -p 3000:3000 -e GEMINI_API_KEY=sua_chave framework-adocao-ia
+```
+
+Abra [http://localhost:3000](http://localhost:3000).
+
 ### Outros scripts
 
 | Script | Descrição |
 |--------|-----------|
 | `npm run lint` | Typecheck (`tsc --noEmit`) |
 | `npm run clean` | Remove artefatos de build |
+
+CI (GitHub Actions) roda `lint` + `build` em push/PR para `main`.
 
 ---
 
@@ -111,9 +122,9 @@ npm run start
 
 - **MVP / protótipo:** UX e conteúdo das 7 fases estão funcionais; packaging ainda em evolução.
 - **Estado no browser:** progresso fica em `localStorage`. Use **Exportar / Importar** (JSON) no header para backup ou troca de máquina.
-- **Fase 7 depende do Gemini:** sem `GEMINI_API_KEY`, as demais fases funcionam; só a geração do parecer falha. Com parecer gerado, use **Baixar Markdown**.
+- **Fase 7 depende do Gemini:** sem `GEMINI_API_KEY`, as demais fases funcionam; só a geração do parecer falha. Com parecer gerado, use **Markdown** ou **PDF** (impressão do navegador).
 - **Sem autenticação / multi-usuário / banco:** um dispositivo = uma sessão local (salvo via export JSON).
-- **Sem testes automatizados / CI** neste momento.
+- **CI:** typecheck + build no GitHub Actions; ainda sem testes automatizados de UI.
 
 ---
 
