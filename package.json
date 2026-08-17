@@ -1,7 +1,8 @@
 {
-  "name": "react-example",
+  "name": "framework-adocao-ia-sdlc",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.5.0",
+  "description": "App interativo do Framework de Adoção de IA no SDLC (Tech Leads Club)",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",

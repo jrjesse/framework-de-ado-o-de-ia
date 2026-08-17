@@ -1,0 +1,35 @@
+name: Bug
+description: Algo não funciona como esperado
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: descricao
+    attributes:
+      label: O que aconteceu?
+      description: Descreva o problema de forma objetiva.
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos para reproduzir
+      placeholder: |
+        1. Abrir Fase X
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Comportamento esperado
+    validations:
+      required: false
+  - type: input
+    id: ambiente
+    attributes:
+      label: Ambiente
+      placeholder: "ex.: macOS, Node 20, Chrome"
+    validations:
+      required: false

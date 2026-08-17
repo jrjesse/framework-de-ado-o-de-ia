@@ -1,0 +1,34 @@
+name: Ideia / melhoria
+description: Sugestão de evolução do app ou do conteúdo do framework
+title: "[ideia] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qual problema ou oportunidade?
+      description: O que fica difícil ou incompleto hoje?
+    validations:
+      required: true
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Proposta
+      description: Como você imagina a solução (mesmo que em alto nível)?
+    validations:
+      required: true
+  - type: dropdown
+    id: fase
+    attributes:
+      label: Fase mais relacionada
+      options:
+        - Geral / setup
+        - Fase 1 — Diagnóstico
+        - Fase 2 — AI Enablers
+        - Fase 3 — Piloto & ferramentas
+        - Fase 4 — Gargalos
+        - Fase 5 — SDLC Playbook
+        - Fase 6 — Governança
+        - Fase 7 — Rollout & parecer
+    validations:
+      required: false

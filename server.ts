@@ -1,24 +1,20 @@
+import "dotenv/config";
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 
-// Configuração segura do cliente Gemini
+// Cliente Gemini — a chave permanece apenas no servidor
 let aiInstance: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI {
   if (!aiInstance) {
     const key = process.env.GEMINI_API_KEY;
     if (!key) {
-      throw new Error("A chave GEMINI_API_KEY não está configurada. Por favor, adicione-a em Settings > Secrets.");
+      throw new Error(
+        "GEMINI_API_KEY não configurada. Copie .env.example para .env e adicione sua chave."
+      );
     }
-    aiInstance = new GoogleGenAI({
-      apiKey: key,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        }
-      }
-    });
+    aiInstance = new GoogleGenAI({ apiKey: key });
   }
   return aiInstance;
 }
