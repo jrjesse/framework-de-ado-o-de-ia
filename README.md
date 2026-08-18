@@ -203,4 +203,10 @@ Feedback especialmente útil: se o **diagnóstico** e a **priorização de garga
 
 ---
 
+## Segurança e privacidade
+
+Para arquitetura / compliance: veja [`docs/SECURITY-PRIVACY.md`](docs/SECURITY-PRIVACY.md) (nota de 1 página sobre onde os dados ficam, o que vai ao Gemini e o que a telemetria **não** coleta).
+
+---
+
 *“IA não substitui engenheiros seniores, mas engenheiros munidos de IA e processos maduros de governança certamente substituirão aqueles que competem em isolamento técnico.” — Tech Leads Club*
